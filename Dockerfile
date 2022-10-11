@@ -1,4 +1,9 @@
 FROM alpine
-RUN apk add --no-cache bash curl python3 openssh-client ethtool tcpdump iperf iperf3 apache2-utils
-RUN echo "bash -c 'python3 -m http.server 80 &' && tail -f /dev/null" > entrypoint.sh
-ENTRYPOINT ["bash", "entrypoint.sh"]
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --no-cache tini \
+        bash vim curl python3 openssh-client ethtool iputils iproute2 tcpdump \
+        iperf iperf3 apache2-utils
+
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/usr/bin/python3", "-m", "http.server", "80"]
